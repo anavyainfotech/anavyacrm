@@ -12,13 +12,14 @@ export default async function InvoicesPage() {
 
   try {
     const invRes = await getInvoicesAction();
-    if (invRes.success) {
-      invoicesList = invRes.invoices || [];
+    if (invRes.success && Array.isArray(invRes.invoices)) {
+      invoicesList = JSON.parse(JSON.stringify(invRes.invoices));
     }
 
-    clientsList = await db
+    const rawClients = await db
       .select({ id: clients.id, name: clients.name, company: clients.company })
       .from(clients);
+    clientsList = JSON.parse(JSON.stringify(rawClients));
   } catch (error) {
     console.error("Failed to load invoices page data:", error);
   }

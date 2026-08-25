@@ -44,7 +44,12 @@ export async function getInvoicesAction() {
       .where(eq(invoices.orgId, orgId))
       .orderBy(desc(invoices.createdAt));
 
-    return { success: true, invoices: allInvoices };
+    const formattedInvoices = allInvoices.map((inv) => ({
+      ...inv,
+      createdAt: inv.createdAt ? new Date(inv.createdAt).toISOString() : new Date().toISOString(),
+    }));
+
+    return { success: true, invoices: formattedInvoices };
   } catch (error: any) {
     console.error("Failed to fetch invoices:", error);
     return { success: false, error: error.message || "Failed to fetch invoices" };
