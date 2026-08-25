@@ -101,9 +101,9 @@ export async function createInvoiceAction(formData: FormData) {
 
     const grandTotal = Math.max(0, subtotal + taxTotal - discountTotal);
 
-    // Generate Invoice Number (e.g. INV-2026-001)
+    // Generate Invoice Number (e.g. INV-2026-001, INV-2026-002)
     const existingInvoices = await db.select().from(invoices).where(eq(invoices.orgId, orgId));
-    const invoiceNumber = `INV-2026-${(existingInvoices.length + 101).toString().padStart(3, "0")}`;
+    const invoiceNumber = `INV-2026-${(existingInvoices.length + 1).toString().padStart(3, "0")}`;
 
     await db.insert(invoices).values({
       invoiceNumber,
