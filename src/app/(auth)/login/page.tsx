@@ -20,7 +20,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="rounded-xl bg-white p-8 shadow-xl border border-gray-100">
+    <div className="rounded-md bg-white p-8 shadow-md border border-gray-300">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm text-center">
         <h2 className="mt-2 text-2xl font-bold leading-9 tracking-tight text-gray-900">
           Sign in to your account
@@ -30,66 +30,66 @@ export default function LoginPage() {
         </p>
       </div>
 
-      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form className="space-y-6" onSubmit={handleSubmit}>
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-sm">
+        <form className="space-y-5" onSubmit={handleSubmit}>
           {error && (
-            <div className="text-sm text-red-500 bg-red-50 p-3 rounded-md text-center">
+            <div className="text-sm text-red-600 bg-red-50 p-3 rounded-sm border border-red-200 text-center font-medium">
               {error}
             </div>
           )}
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
+            <label htmlFor="email" className="block text-sm font-semibold leading-6 text-gray-800">
               Email address
             </label>
-            <div className="mt-2">
+            <div className="mt-1.5">
               <input
                 id="email"
                 name="email"
                 type="email"
                 autoComplete="email"
                 required
-                className="block w-full rounded-sm border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 px-3"
+                className="block w-full rounded-sm border border-gray-300 py-2 px-3 text-gray-900 placeholder:text-gray-400 focus:border-blue-600 focus:outline-none sm:text-sm font-medium"
               />
             </div>
           </div>
 
           <div>
             <div className="flex items-center justify-between">
-              <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
+              <label htmlFor="password" className="block text-sm font-semibold leading-6 text-gray-800">
                 Password
               </label>
-              <div className="text-sm">
+              <div className="text-xs">
                 <a href="#" className="font-semibold text-blue-600 hover:text-blue-500">
                   Forgot password?
                 </a>
               </div>
             </div>
-            <div className="mt-2">
+            <div className="mt-1.5">
               <input
                 id="password"
                 name="password"
                 type="password"
                 autoComplete="current-password"
                 required
-                className="block w-full rounded-sm border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 px-3"
+                className="block w-full rounded-sm border border-gray-300 py-2 px-3 text-gray-900 placeholder:text-gray-400 focus:border-blue-600 focus:outline-none sm:text-sm font-medium"
               />
             </div>
           </div>
 
-          <div>
+          <div className="pt-1">
             <button
               type="submit"
-              className="flex w-full justify-center rounded-sm bg-blue-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-colors cursor-pointer"
+              className="flex w-full justify-center rounded-sm bg-blue-600 px-3 py-2 text-sm font-bold text-white shadow-xs hover:bg-blue-700 transition-colors cursor-pointer"
             >
               Sign in
             </button>
           </div>
         </form>
 
-        <p className="mt-6 text-center text-sm text-gray-500">
+        <p className="mt-6 text-center text-xs text-gray-500">
           Don't have an account?{" "}
-          <Link href="/register" className="font-semibold leading-6 text-blue-600 hover:text-blue-500">
+          <Link href="/register" className="font-bold text-blue-600 hover:text-blue-500">
             Create a workspace
           </Link>
         </p>
