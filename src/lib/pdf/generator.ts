@@ -269,24 +269,26 @@ export async function generateInvoicePDFBuffer(inv: {
 }): Promise<Buffer> {
   const htmlContent = renderInvoiceHTML(inv);
 
-  // Try Puppeteer for exact HTML-to-PDF rendering matching the screenshot
-  try {
-    const puppeteer = await import("puppeteer");
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-    const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: "domcontentloaded" });
-    const pdfBuffer = await page.pdf({
-      format: "A4",
-      printBackground: true,
-      margin: { top: "20px", right: "20px", bottom: "20px", left: "20px" },
-    });
-    await browser.close();
-    return Buffer.from(pdfBuffer);
-  } catch (puppeteerErr) {
-    console.warn("Puppeteer not available, falling back to PDFKit:", puppeteerErr);
+  // Try Puppeteer only in local environment (skip on Vercel serverless for instant PDFKit rendering)
+  if (!process.env.VERCEL) {
+    try {
+      const puppeteer = await import("puppeteer");
+      const browser = await puppeteer.launch({
+        headless: true,
+        args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      });
+      const page = await browser.newPage();
+      await page.setContent(htmlContent, { waitUntil: "domcontentloaded" });
+      const pdfBuffer = await page.pdf({
+        format: "A4",
+        printBackground: true,
+        margin: { top: "20px", right: "20px", bottom: "20px", left: "20px" },
+      });
+      await browser.close();
+      return Buffer.from(pdfBuffer);
+    } catch (puppeteerErr) {
+      console.warn("Puppeteer not available, falling back to PDFKit:", puppeteerErr);
+    }
   }
 
   // PDFKit fallback
