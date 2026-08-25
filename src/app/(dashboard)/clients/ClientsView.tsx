@@ -48,6 +48,8 @@ function AIScoreBadge({ score }: { score: number }) {
   );
 }
 
+import { useSearchParams } from "next/navigation";
+
 export default function ClientsView({ 
   initialClients, 
   currentUser, 
@@ -57,6 +59,9 @@ export default function ClientsView({
   currentUser?: any; 
   users?: any[]; 
 }) {
+  const searchParams = useSearchParams();
+  const initialSearchParam = searchParams ? (searchParams.get("search") || "") : "";
+
   const [view, setView] = useState<'list' | 'board'>('list');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
@@ -64,7 +69,7 @@ export default function ClientsView({
   const [bulkText, setBulkText] = useState("");
   const [excelPreview, setExcelPreview] = useState<any[]>([]);
   const [fileName, setFileName] = useState<string>("");
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(initialSearchParam);
   const [assigneeFilter, setAssigneeFilter] = useState<string>("all");
   const [isPending, startTransition] = useTransition();
   const [detailsData, setDetailsData] = useState<{client: any, activities: any[], users: any[], quotations: any[], agreements?: any[], invoices?: any[]} | null>(null);

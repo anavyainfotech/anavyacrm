@@ -7,6 +7,8 @@ import ClientsView from "./ClientsView";
 import { auth } from "@/auth/auth";
 import { hasPermission } from "@/lib/permissions";
 
+import { Suspense } from "react";
+
 export default async function ClientsPage() {
   const session = await auth();
   const role = (session?.user as any)?.role;
@@ -72,7 +74,9 @@ export default async function ClientsPage() {
 
   return (
     <div className="w-full">
-      <ClientsView initialClients={allClients} currentUser={session?.user} users={allUsers} />
+      <Suspense fallback={<div className="p-4 text-xs text-gray-500">Loading leads search...</div>}>
+        <ClientsView initialClients={allClients} currentUser={session?.user} users={allUsers} />
+      </Suspense>
     </div>
   );
 }

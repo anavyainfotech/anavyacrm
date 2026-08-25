@@ -106,13 +106,20 @@ export function Header({ user }: { user: any }) {
     <>
       <header className="flex h-13 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 sm:gap-x-6 sm:px-6">
         <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6 items-center">
-          <form className="relative flex flex-1" action="#" method="GET">
+          <form className="relative flex flex-1" onSubmit={(e) => {
+            e.preventDefault();
+            const formData = new FormData(e.currentTarget);
+            const query = (formData.get("search") as string || "").trim();
+            if (query) {
+              router.push(`/clients?search=${encodeURIComponent(query)}`);
+            }
+          }}>
             <label htmlFor="search-field" className="sr-only">Search</label>
             <Search className="pointer-events-none absolute inset-y-0 left-0 h-full w-5 text-gray-400" aria-hidden="true" />
             <input
               id="search-field"
               className="block h-full w-full border-0 py-0 pl-8 pr-0 text-gray-900 placeholder:text-gray-400 sm:text-sm focus:outline-none focus:ring-0 focus:border-transparent"
-              placeholder="Search clients, leads, projects..."
+              placeholder="Search clients, leads, projects (press Enter)..."
               type="search"
               name="search"
             />
