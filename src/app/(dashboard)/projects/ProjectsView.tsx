@@ -492,7 +492,7 @@ export default function ProjectsView({
           <div className="w-full max-w-2xl rounded-sm bg-white border border-gray-200 overflow-hidden shadow-2xl">
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
               <h2 className="text-base font-bold text-gray-900 flex items-center gap-2">
-                <FolderKanban className="w-5 h-5 text-blue-600" /> Create New Software Project
+                <FolderKanban className="w-5 h-5 text-blue-600" /> Create New Project & Deliverable
               </h2>
               <button
                 onClick={() => setIsAddProjectModalOpen(false)}
@@ -510,7 +510,7 @@ export default function ProjectsView({
                     type="text"
                     name="name"
                     required
-                    placeholder="e.g. Geetanjali Enterprise Portal"
+                    placeholder="e.g. Villa Project / Client Engagement"
                     className="w-full rounded-sm border border-gray-200 p-2 focus:border-blue-500 focus:outline-none"
                   />
                 </div>
@@ -521,7 +521,7 @@ export default function ProjectsView({
                     type="text"
                     name="code"
                     required
-                    placeholder="e.g. ANV-PRJ-001, CRM-PRJ-002"
+                    placeholder="e.g. PRJ-001, DELIV-101"
                     className="w-full rounded-sm border border-gray-200 p-2 uppercase font-mono focus:border-blue-500 focus:outline-none"
                   />
                 </div>
@@ -541,11 +541,11 @@ export default function ProjectsView({
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-gray-700 mb-1">Tech Stack / Category Tags</label>
+                  <label className="block font-semibold text-gray-700 mb-1">Services / Category Tags</label>
                   <input
                     type="text"
                     name="techStack"
-                    placeholder="e.g. Next.js, SEO, TailwindCSS"
+                    placeholder="e.g. Site Visit, Blueprint / Consultation"
                     className="w-full rounded-sm border border-gray-200 p-2 focus:border-blue-500 focus:outline-none"
                   />
                 </div>
@@ -580,7 +580,7 @@ export default function ProjectsView({
                 <textarea
                   name="description"
                   rows={3}
-                  placeholder="Detailed project requirements and tech goals..."
+                  placeholder="Detailed project scope and key milestones..."
                   className="w-full rounded-sm border border-gray-200 p-2 focus:border-blue-500 focus:outline-none"
                 />
               </div>
@@ -598,7 +598,7 @@ export default function ProjectsView({
                   disabled={isPending}
                   className="rounded-sm bg-blue-600 px-5 py-2 font-semibold text-white hover:bg-blue-700 disabled:opacity-50 cursor-pointer"
                 >
-                  {isPending ? "Creating Project..." : "Create Software Project"}
+                  {isPending ? "Creating Project..." : "Create Project"}
                 </button>
               </div>
             </form>

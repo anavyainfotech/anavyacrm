@@ -3,6 +3,7 @@ export const revalidate = 0;
 
 import { db } from "@/lib/db";
 import { clients } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 import { auth } from "@/auth/auth";
 import { getProjectsAction } from "@/features/projects/actions";
 import { getTeamMembersAction } from "@/features/team/actions";
@@ -30,9 +31,12 @@ export default async function ProjectsPage() {
       teamMembers = teamRes.members;
     }
 
+    const orgId = user?.orgId ? parseInt(user.orgId, 10) : 1;
+
     clientsList = await db
       .select({ id: clients.id, name: clients.name, company: clients.company })
-      .from(clients);
+      .from(clients)
+      .where(eq(clients.orgId, orgId));
   } catch (error) {
     console.error("Failed to load projects page data:", error);
   }

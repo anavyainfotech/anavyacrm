@@ -6,7 +6,8 @@ import { desc, eq, and } from "drizzle-orm";
 import ClientsView from "./ClientsView";
 import { auth } from "@/auth/auth";
 import { hasPermission } from "@/lib/permissions";
-
+import { getCustomFieldsAction } from "@/features/custom-fields/actions";
+import { getTeamMembersAction } from "@/features/team/actions";
 import { Suspense } from "react";
 
 export default async function ClientsPage() {
@@ -30,6 +31,7 @@ export default async function ClientsPage() {
 
   let allClients: any[] = [];
   let allUsers: any[] = [];
+  let activeCustomFields: any[] = [];
 
   try {
     const isOwnerOrAdmin = role === "owner" || role === "admin";
@@ -65,17 +67,40 @@ export default async function ClientsPage() {
       }
     }
 
-    allUsers = await db.select({ id: usersTable.id, name: usersTable.name }).from(usersTable);
+    const teamRes = await getTeamMembersAction();
+    if (teamRes.members) {
+      allUsers = teamRes.members
+        .filter((m: any) => {
+          const dept = (m.department || "").toLowerCase();
+          const role = (m.role || "").toLowerCase();
+          const desig = (m.designation || "").toLowerCase();
+
+          const isSalesDept = dept.includes("sales") || dept.includes("marketing") || dept.includes("bd") || dept.includes("business dev") || dept.includes("business development");
+          const isSalesDesig = desig.includes("sales") || desig.includes("bd") || desig.includes("business dev") || desig.includes("account executive");
+          const isSalesRole = role === "executive" || role === "bd_intern" || role === "owner" || role === "manager";
+
+          return isSalesDept || isSalesDesig || isSalesRole;
+        })
+        .map((m: any) => ({ id: m.user.id, name: m.user.name }));
+    } else {
+      allUsers = await db.select({ id: usersTable.id, name: usersTable.name }).from(usersTable);
+    }
+
+    const fieldsRes = await getCustomFieldsAction("leads");
+    if (fieldsRes.success) {
+      activeCustomFields = fieldsRes.fields || [];
+    }
   } catch (error) {
     console.error("DB Error:", error);
     allClients = [];
     allUsers = [];
+    activeCustomFields = [];
   }
 
   return (
     <div className="w-full">
       <Suspense fallback={<div className="p-4 text-xs text-gray-500">Loading leads search...</div>}>
-        <ClientsView initialClients={allClients} currentUser={session?.user} users={allUsers} />
+        <ClientsView initialClients={allClients} currentUser={session?.user} users={allUsers} customFieldsList={activeCustomFields} />
       </Suspense>
     </div>
   );

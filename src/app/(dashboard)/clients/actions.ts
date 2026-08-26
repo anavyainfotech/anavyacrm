@@ -72,6 +72,7 @@ export async function addClient(formData: FormData) {
     const priority = formData.get("priority") as string || "Medium";
     const status = formData.get("status") as string || "New Lead";
     const notes = formData.get("notes") as string || null;
+    const customFieldsData = formData.get("customFieldsData") as string || "{}";
     const assignedToRaw = formData.get("assignedTo");
     let assignedTo = assignedToRaw ? parseInt(assignedToRaw as string, 10) : null;
 
@@ -90,11 +91,12 @@ export async function addClient(formData: FormData) {
     const [insertedClient] = await db.insert(clients).values({
       name, email, phone, whatsapp, company, industry,
       source, requirement, budget, priority, status,
-      aiScore, notes, orgId, assignedTo,
+      aiScore, customFieldsData, notes, orgId, assignedTo,
     }).returning();
 
     // Auto-send Welcome Email if Client Email is provided
     if (email) {
+      const orgName = (session?.user as any)?.orgName || "Our Organization";
       const { sendEmail } = await import("@/lib/email/sendEmail");
       const welcomeHtml = `
         <!DOCTYPE html>
@@ -102,26 +104,17 @@ export async function addClient(formData: FormData) {
         <body style="font-family: Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 20px; color: #334155;">
           <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0; padding: 25px;">
             <div style="background-color: #0f172a; padding: 15px; border-radius: 6px; text-align: center; color: #ffffff; margin-bottom: 20px;">
-              <h2 style="margin: 0; font-size: 20px;">Welcome to Anavya Infotech! 🎉</h2>
+              <h2 style="margin: 0; font-size: 20px;">Welcome to ${orgName}! 🎉</h2>
             </div>
             <p style="font-size: 14px; color: #1e293b;">Hello <strong>${name}</strong>,</p>
             <p style="font-size: 14px; line-height: 1.6; color: #475569;">
-              Thank you for choosing <strong>Anavya Infotech</strong>. We have received your inquiry for <strong>${requirement || "IT Services & Solutions"}</strong>.
+              Thank you for getting in touch with <strong>${orgName}</strong>. We have received your inquiry for <strong>${requirement || "our services"}</strong>.
             </p>
             <p style="font-size: 14px; line-height: 1.6; color: #475569;">
-              Our dedicated business representative will get in touch with you shortly to discuss your project requirements and next steps.
+              Our dedicated business representative will get in touch with you shortly to discuss your requirements and next steps.
             </p>
-            <div style="background-color: #f1f5f9; padding: 15px; border-radius: 6px; margin: 20px 0; font-size: 13px; color: #334155;">
-              <strong>Anavya Infotech Services:</strong>
-              <ul style="margin: 5px 0 0 0; padding-left: 20px;">
-                <li>Custom Next.js & Full-Stack Web Applications</li>
-                <li>Mobile App Development (iOS & Android)</li>
-                <li>Enterprise CRM & Business Automation</li>
-                <li>Cloud Infrastructure & API Integrations</li>
-              </ul>
-            </div>
             <p style="font-size: 12px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 15px; margin-top: 20px;">
-              Anavya Infotech • Digital Agency & Enterprise Solutions • <a href="https://anavyainfotech.com" style="color: #2563eb;">anavyainfotech.com</a>
+              ${orgName} • Professional Customer Management Portal
             </p>
           </div>
         </body>
@@ -130,7 +123,7 @@ export async function addClient(formData: FormData) {
 
       await sendEmail({
         to: email,
-        subject: `Welcome to Anavya Infotech, ${name}! 👋`,
+        subject: `Welcome to ${orgName}, ${name}! 👋`,
         html: welcomeHtml,
       });
 
@@ -162,6 +155,9 @@ export async function sendClientWelcomeEmailAction(clientId: number) {
       return { success: false, error: "MISSING_CLIENT_EMAIL", message: `Client "${client.name}" does not have an email address.` };
     }
     
+    const session = await auth();
+    const orgName = (session?.user as any)?.orgName || "Our Organization";
+    
     const { sendEmail } = await import("@/lib/email/sendEmail");
     const welcomeHtml = `
       <!DOCTYPE html>
@@ -169,17 +165,17 @@ export async function sendClientWelcomeEmailAction(clientId: number) {
       <body style="font-family: Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 20px; color: #334155;">
         <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0; padding: 25px;">
           <div style="background-color: #0f172a; padding: 15px; border-radius: 6px; text-align: center; color: #ffffff; margin-bottom: 20px;">
-            <h2 style="margin: 0; font-size: 20px;">Greetings from Anavya Infotech! 👋</h2>
+            <h2 style="margin: 0; font-size: 20px;">Greetings from ${orgName}! 👋</h2>
           </div>
           <p style="font-size: 14px; color: #1e293b;">Hello <strong>${client.name}</strong>,</p>
           <p style="font-size: 14px; line-height: 1.6; color: #475569;">
-            We are writing to follow up on your project requirement for <strong>${client.requirement || "IT Services"}</strong> at <strong>${client.company || "your business"}</strong>.
+            We are writing to follow up on your requirement for <strong>${client.requirement || "our products & services"}</strong> at <strong>${client.company || "your business"}</strong>.
           </p>
           <p style="font-size: 14px; line-height: 1.6; color: #475569;">
-            Our team is ready to assist you with custom web & app development, digital transformations, and automated business CRM solutions.
+            Our team is ready to assist you with tailored solutions and business management.
           </p>
           <p style="font-size: 12px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 15px; margin-top: 20px;">
-            Anavya Infotech • Enterprise Solutions • <a href="https://anavyainfotech.com" style="color: #2563eb;">anavyainfotech.com</a>
+            ${orgName} • Customer Management Portal
           </p>
         </div>
       </body>
@@ -188,7 +184,7 @@ export async function sendClientWelcomeEmailAction(clientId: number) {
 
     const res = await sendEmail({
       to: targetEmail,
-      subject: `Project Update & Greetings from Anavya Infotech, ${client.name}`,
+      subject: `Project Update & Greetings from ${orgName}, ${client.name}`,
       html: welcomeHtml,
     });
 

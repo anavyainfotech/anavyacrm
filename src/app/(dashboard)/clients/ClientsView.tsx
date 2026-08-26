@@ -53,11 +53,13 @@ import { useSearchParams } from "next/navigation";
 export default function ClientsView({ 
   initialClients, 
   currentUser, 
-  users = [] 
+  users = [],
+  customFieldsList = []
 }: { 
   initialClients: any[]; 
   currentUser?: any; 
   users?: any[]; 
+  customFieldsList?: any[];
 }) {
   const searchParams = useSearchParams();
   const initialSearchParam = searchParams ? (searchParams.get("search") || "") : "";
@@ -197,7 +199,19 @@ export default function ClientsView({
     return true;
   });
 
-  async function handleAddClient(formData: FormData) {
+  async function handleAddClientSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    
+    const customObj: Record<string, any> = {};
+    customFieldsList.forEach((cf: any) => {
+      const val = formData.get(`cf_${cf.fieldName}`);
+      if (val !== null && val !== undefined && val !== "") {
+        customObj[cf.fieldName] = val;
+      }
+    });
+    formData.append("customFieldsData", JSON.stringify(customObj));
+
     startTransition(async () => {
       const res = await addClient(formData);
       if (res.success) setIsModalOpen(false);
@@ -386,7 +400,7 @@ export default function ClientsView({
       {/* Content */}
       <div className="mt-3 pb-6">
         {view === 'list' ? (
-          <div className="overflow-hidden rounded-sm border border-gray-200 bg-white">
+          <div className="overflow-x-auto rounded-sm border border-gray-200 bg-white">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -519,7 +533,7 @@ export default function ClientsView({
               <h2 className="text-lg font-bold text-gray-900">Add New Single Lead</h2>
               <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600 text-xl font-light cursor-pointer">✕</button>
             </div>
-            <form action={handleAddClient} className="p-6 space-y-4">
+            <form onSubmit={handleAddClientSubmit} className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 mb-1">Full Name *</label>
@@ -601,6 +615,69 @@ export default function ClientsView({
                   </select>
                 </div>
               </div>
+
+              {/* Dynamic Industry Custom Fields Section (Hidden for now) */}
+              {/* customFieldsList && customFieldsList.length > 0 && (
+                <div className="bg-blue-50/50 p-3.5 rounded-sm border border-blue-100 space-y-3">
+                  <div className="flex items-center justify-between border-b border-blue-100 pb-1.5">
+                    <h3 className="text-xs font-bold text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-blue-600" /> Industry Custom Fields ({customFieldsList.length})
+                    </h3>
+                    <span className="text-[10px] text-blue-600 font-medium">Configured for your business</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 text-xs">
+                    {customFieldsList.map((field: any) => {
+                      let parsedOpts: string[] = [];
+                      try {
+                        parsedOpts = field.options ? JSON.parse(field.options) : [];
+                      } catch (e) {
+                        parsedOpts = [];
+                      }
+
+                      const inputName = `cf_${field.fieldName}`;
+
+                      return (
+                        <div key={field.id} className={field.fieldType === "textarea" ? "col-span-2" : "col-span-1"}>
+                          <label className="block font-semibold text-gray-800 mb-1">
+                            {field.fieldLabel} {field.isRequired === "true" && <span className="text-red-500">*</span>}
+                          </label>
+
+                          {field.fieldType === "select" ? (
+                            <select
+                              name={inputName}
+                              required={field.isRequired === "true"}
+                              className="w-full rounded-sm border border-gray-200 p-2 bg-white text-xs focus:border-blue-500 focus:outline-none"
+                            >
+                              <option value="">Select {field.fieldLabel}</option>
+                              {parsedOpts.map((opt: string, i: number) => (
+                                <option key={i} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                          ) : field.fieldType === "textarea" ? (
+                            <textarea
+                              name={inputName}
+                              rows={2}
+                              required={field.isRequired === "true"}
+                              placeholder={`Enter ${field.fieldLabel}`}
+                              className="w-full rounded-sm border border-gray-200 p-2 text-xs focus:border-blue-500 focus:outline-none"
+                            />
+                          ) : (
+                            <input
+                              type={field.fieldType === "number" ? "number" : field.fieldType === "date" ? "date" : "text"}
+                              name={inputName}
+                              required={field.isRequired === "true"}
+                              placeholder={`Enter ${field.fieldLabel}`}
+                              className="w-full rounded-sm border border-gray-200 p-2 text-xs focus:border-blue-500 focus:outline-none"
+                            />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) */}
+
               <div>
                 <label className="block text-xs font-semibold text-gray-600 mb-1">Requirement</label>
                 <textarea name="requirement" rows={2} className="block w-full rounded-sm border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="What does the client need?" />

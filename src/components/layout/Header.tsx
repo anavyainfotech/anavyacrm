@@ -2,17 +2,17 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Bell, LogOut, Search, Settings, User, UserCircle, X, Camera, Shield, BadgeCheck, CheckCheck, RefreshCw, AlertCircle, PhoneCall, CreditCard, Rocket, ExternalLink } from "lucide-react";
+import { Bell, LogOut, Search, Settings, User, UserCircle, X, Camera, Shield, BadgeCheck, CheckCheck, RefreshCw, AlertCircle, PhoneCall, CreditCard, Rocket, ExternalLink, Menu } from "lucide-react";
 import { updateProfileAction, updateWorkspaceAction } from "@/features/profile/actions";
 import { getNotificationsAction, NotificationItem } from "@/features/notifications/actions";
 import { useRouter } from "next/navigation";
 
-export function Header({ user }: { user: any }) {
+export function Header({ user, onOpenMobileSidebar }: { user: any; onOpenMobileSidebar?: () => void }) {
   const router = useRouter();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [activeModal, setActiveModal] = useState<"profile" | "settings" | null>(null);
-  
+
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [notificationFilter, setNotificationFilter] = useState<"all" | "call" | "invoice" | "alert">("all");
@@ -61,6 +61,8 @@ export function Header({ user }: { user: any }) {
   
   const userEmail = user?.email || "admin@anavyainfotech.com";
   const userRole = user?.role || "owner";
+  const userOrgId = user?.orgId || "1";
+  const userOrgCode = user?.orgCode || `ORG-${String(userOrgId).padStart(3, "0")}`;
 
   const getRoleLabel = (role: string) => {
     if (role === "owner") return "👑 Founder & Owner";
@@ -104,9 +106,19 @@ export function Header({ user }: { user: any }) {
 
   return (
     <>
-      <header className="flex h-13 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 sm:gap-x-6 sm:px-6">
-        <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6 items-center">
-          <form className="relative flex flex-1" onSubmit={(e) => {
+      <header className="flex h-13 shrink-0 items-center gap-x-3 border-b border-gray-200 bg-white px-3 sm:gap-x-6 sm:px-6">
+        {/* Mobile Hamburger Menu Toggle Button */}
+        <button
+          type="button"
+          onClick={onOpenMobileSidebar}
+          className="lg:hidden p-1.5 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-sm transition-colors cursor-pointer shrink-0"
+          title="Open Navigation Menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+
+        <div className="flex flex-1 gap-x-3 sm:gap-x-6 self-stretch items-center min-w-0">
+          <form className="relative flex flex-1 min-w-0" onSubmit={(e) => {
             e.preventDefault();
             const formData = new FormData(e.currentTarget);
             const query = (formData.get("search") as string || "").trim();
@@ -115,11 +127,11 @@ export function Header({ user }: { user: any }) {
             }
           }}>
             <label htmlFor="search-field" className="sr-only">Search</label>
-            <Search className="pointer-events-none absolute inset-y-0 left-0 h-full w-5 text-gray-400" aria-hidden="true" />
+            <Search className="pointer-events-none absolute inset-y-0 left-0 h-full w-4 sm:w-5 text-gray-400" aria-hidden="true" />
             <input
               id="search-field"
-              className="block h-full w-full border-0 py-0 pl-8 pr-0 text-gray-900 placeholder:text-gray-400 sm:text-sm focus:outline-none focus:ring-0 focus:border-transparent"
-              placeholder="Search clients, leads, projects (press Enter)..."
+              className="block h-full w-full border-0 py-0 pl-7 sm:pl-8 pr-0 text-gray-900 placeholder:text-gray-400 text-xs sm:text-sm focus:outline-none focus:ring-0 focus:border-transparent"
+              placeholder="Search leads, projects..."
               type="search"
               name="search"
             />
@@ -313,13 +325,18 @@ export function Header({ user }: { user: any }) {
               </button>
 
               {isDropdownOpen && (
-                <div className="absolute right-0 z-20 mt-2.5 w-60 origin-top-right rounded-sm bg-white py-2 border border-gray-200">
-                  <div className="px-4 py-2 border-b border-gray-100 bg-gray-50/50">
+                <div className="absolute right-0 z-20 mt-2.5 w-64 origin-top-right rounded-sm bg-white py-2 border border-gray-200 shadow-xl">
+                  <div className="px-4 py-2 border-b border-gray-100 bg-gray-50/50 space-y-1">
                     <p className="text-xs font-bold text-gray-900">{userName}</p>
                     <p className="text-[11px] text-gray-500">{userEmail}</p>
-                    <span className="inline-block mt-1 text-[10px] font-semibold px-2 py-0.5 rounded-xs bg-blue-100 text-blue-800">
-                      {getRoleLabel(userRole)}
-                    </span>
+                    <div className="flex items-center gap-1.5 pt-1 flex-wrap">
+                      <span className="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-xs bg-blue-100 text-blue-800">
+                        {getRoleLabel(userRole)}
+                      </span>
+                      <span className="inline-block text-[10px] font-medium px-2 py-0.5 rounded-xs bg-gray-100 text-gray-800 border border-gray-200 font-mono">
+                        Org ID: #{userOrgId}
+                      </span>
+                    </div>
                   </div>
 
                   <button type="button" className="flex w-full items-center px-4 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 cursor-pointer" onClick={() => { setActiveModal("profile"); setIsDropdownOpen(false); }}>
@@ -351,16 +368,29 @@ export function Header({ user }: { user: any }) {
                     <div className="mx-auto flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-blue-600 text-white font-bold text-xl sm:mx-0">
                       {userName.charAt(0).toUpperCase()}
                     </div>
-                    <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left w-full">
-                      <h3 className="text-lg font-bold leading-6 text-gray-900">User Profile</h3>
-                      <p className="text-xs text-gray-500">Currently logged in account details</p>
+                    <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left w-full space-y-3">
+                      <div>
+                        <h3 className="text-lg font-bold leading-6 text-gray-900">User Profile</h3>
+                        <p className="text-xs text-gray-500">Account & Workspace Identifiers</p>
+                      </div>
                       
-                      <div className="mt-4 space-y-4 text-xs">
+                      {/* Simple Neutral Workspace Card */}
+                      <div className="bg-gray-50 border border-gray-200 p-2.5 rounded-sm text-xs flex justify-between items-center text-gray-800">
+                        <div>
+                          <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Organization</p>
+                          <p className="text-xs font-bold text-gray-900">{orgName}</p>
+                        </div>
+                        <span className="font-mono text-xs font-bold text-gray-900 bg-gray-200/80 px-2 py-0.5 rounded">
+                          Org ID: #{userOrgId}
+                        </span>
+                      </div>
+
+                      <div className="space-y-3 text-xs">
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-700 mb-1">Full Name</label>
+                          <input name="name" type="text" defaultValue={userName} required className="block w-full rounded-sm border border-gray-200 py-1.5 px-3 text-xs text-gray-900 focus:border-blue-500 focus:outline-none font-medium" />
+                        </div>
                         <div className="grid grid-cols-2 gap-4">
-                          <div className="col-span-2">
-                            <label className="block text-xs font-semibold text-gray-700 mb-1">Full Name</label>
-                            <input name="name" type="text" defaultValue={userName} required className="block w-full rounded-sm border border-gray-200 py-1.5 px-3 text-xs text-gray-900 focus:border-blue-500 focus:outline-none" />
-                          </div>
                           <div>
                             <label className="block text-xs font-semibold text-gray-700 mb-1">Role / Position</label>
                             <div className="py-1.5 font-bold text-blue-700">{getRoleLabel(userRole)}</div>
@@ -400,10 +430,15 @@ export function Header({ user }: { user: any }) {
                     <div className="mx-auto flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 sm:mx-0">
                       <Settings className="h-5 w-5 text-blue-600" />
                     </div>
-                    <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left w-full">
+                    <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left w-full space-y-4">
                       <h3 className="text-lg font-bold leading-6 text-gray-900">Workspace Settings</h3>
                       
-                      <div className="mt-4 space-y-4">
+                      <div className="bg-gray-50 p-2.5 rounded-sm border border-gray-200 text-xs flex justify-between items-center font-mono">
+                        <span className="text-gray-600 font-sans">Workspace Org ID:</span>
+                        <span className="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">#{userOrgId} ({userOrgCode})</span>
+                      </div>
+
+                      <div className="space-y-4">
                         <div>
                           <label className="block text-xs font-semibold text-gray-700 mb-1">Organization Name</label>
                           <input name="orgName" type="text" required defaultValue={orgName} className="block w-full rounded-sm border border-gray-200 py-1.5 px-3 text-xs text-gray-900 focus:border-blue-500 focus:outline-none" />

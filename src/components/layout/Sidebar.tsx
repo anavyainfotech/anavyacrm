@@ -8,7 +8,7 @@ import { siteConfig } from "@/config/site";
 import { hasPermission, parsePermissions } from "@/lib/permissions";
 import { LogOut } from "lucide-react";
 
-export function Sidebar({ user }: { user?: any }) {
+export function Sidebar({ user, onItemClick }: { user?: any; onItemClick?: () => void }) {
   const pathname = usePathname();
   const role = user?.role;
   const permissions = user?.permissions;
@@ -18,16 +18,16 @@ export function Sidebar({ user }: { user?: any }) {
   const parsedPerms = parsePermissions(permissions, role);
 
   return (
-    <div className="flex h-full w-64 flex-col bg-white border-r border-gray-200">
+    <div className="flex h-full w-full flex-col bg-white border-r border-gray-200">
       {/* Brand Header */}
-      <div className="flex h-16 shrink-0 items-center gap-3 px-5 border-b border-gray-100">
-        <img src="/logo.png" alt="Anavya Infotech Logo" className="w-8 h-8 object-contain" />
+      <div className="flex h-14 shrink-0 items-center gap-3 px-5 border-b border-gray-100">
+        <img src="/logo.png" alt="Anavya Infotech Logo" className="w-7 h-7 object-contain" />
         <h1 className="text-base font-extrabold text-blue-900 tracking-tight">{siteConfig.name}</h1>
       </div>
 
       {/* Navigation */}
       <div className="flex flex-1 flex-col overflow-y-auto">
-        <nav className="flex-1 space-y-1 px-4 py-4">
+        <nav className="flex-1 space-y-1 px-3 py-3">
           {dashboardNavigation.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
 
@@ -49,11 +49,12 @@ export function Sidebar({ user }: { user?: any }) {
               <Link
                 key={item.name}
                 href={item.href}
+                onClick={onItemClick}
                 className={cn(
                   isActive
                     ? "bg-blue-50 text-blue-600 font-semibold"
                     : "text-gray-700 hover:bg-gray-50 hover:text-blue-600",
-                  "group flex items-center rounded-md px-2 py-2 text-sm font-medium transition-colors"
+                  "group flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors"
                 )}
               >
                 <item.icon
@@ -76,11 +77,12 @@ export function Sidebar({ user }: { user?: any }) {
               <Link
                 key={item.name}
                 href={item.href}
+                onClick={onItemClick}
                 className={cn(
                   isActive
                     ? "bg-blue-50 text-blue-600 font-semibold"
                     : "text-gray-700 hover:bg-gray-50 hover:text-blue-600",
-                  "group flex items-center rounded-md px-2 py-2 text-sm font-medium transition-colors"
+                  "group flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors"
                 )}
               >
                 <item.icon className={cn(

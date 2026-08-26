@@ -66,7 +66,8 @@ export const clients = pgTable("clients", {
   status: text("status").notNull().default("New Lead"), // New Lead, First Contact, etc.
   // AI Score (0-100)
   aiScore: integer("ai_score").default(0),
-  // Extra
+  // Extra & Custom Fields Data (JSON storing dynamic custom fields per industry)
+  customFieldsData: text("custom_fields_data").default("{}"),
   notes: text("notes"),
   orgId: integer("org_id").notNull().references(() => organizations.id, { onDelete: 'cascade' }),
   assignedTo: integer("assigned_to").references(() => users.id, { onDelete: 'set null' }),
@@ -184,4 +185,20 @@ export const supportTickets = pgTable("support_tickets", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+
+// Dynamic Custom Fields Engine Schema (Supports 100+ Business Industries)
+export const customFields = pgTable("custom_fields", {
+  id: serial("id").primaryKey(),
+  orgId: integer("org_id").notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  module: text("module").notNull().default("leads"), // 'leads', 'clients', 'projects', 'invoices'
+  fieldName: text("field_name").notNull(), // Machine identifier key e.g. property_type
+  fieldLabel: text("field_label").notNull(), // UI Display Label e.g. Property Type
+  fieldType: text("field_type").notNull().default("text"), // 'text', 'number', 'select', 'date', 'boolean', 'textarea'
+  options: text("options").default("[]"), // JSON array string for select dropdown options e.g. ["1 BHK", "2 BHK"]
+  isRequired: text("is_required").default("false"), // 'true' or 'false'
+  industryType: text("industry_type").default("General"), // 'Real Estate', 'Healthcare', 'IT', 'Solar', 'B2B', 'Education', 'Finance'
+  sortOrder: integer("sort_order").default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 

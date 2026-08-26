@@ -33,6 +33,8 @@ export default async function DashboardPage() {
   let currentMemberRecord: any = null;
   let recentActivities: any[] = [];
 
+  const orgId = user?.orgId ? parseInt(user.orgId, 10) : 1;
+
   try {
     const teamRes = await getTeamMembersAction();
     if (teamRes.members) {
@@ -44,10 +46,14 @@ export default async function DashboardPage() {
           if (m.role === "owner") return false;
           const dept = (m.department || "").toLowerCase();
           const role = (m.role || "").toLowerCase();
-          const isSalesDept = dept.includes("sales") || dept.includes("marketing") || dept.includes("bd") || dept.includes("business dev");
-          const isSalesRole = role === "executive" || role === "manager" || role === "bd_intern";
-          const hasSalesMetrics = (m.targetRevenue || 0) > 0 || (m.generatedRevenue || 0) > 0 || (m.convertedLeadsCount || 0) > 0;
-          return isSalesDept || isSalesRole || hasSalesMetrics;
+          const desig = (m.designation || "").toLowerCase();
+
+          const isSalesDept = dept.includes("sales") || dept.includes("marketing") || dept.includes("bd") || dept.includes("business dev") || dept.includes("business development");
+          const isSalesDesig = desig.includes("sales") || desig.includes("bd") || desig.includes("business dev") || desig.includes("account executive");
+          const isSalesRole = role === "executive" || role === "bd_intern";
+
+          // Strict Rule: ONLY Sales & Business Development (BD) profiles are allowed in Sales Leaderboard
+          return isSalesDept || isSalesDesig || isSalesRole;
         })
         .sort(
           (a, b) => (b.generatedRevenue || 0) - (a.generatedRevenue || 0) || (b.convertedLeadsCount || 0) - (a.convertedLeadsCount || 0)
@@ -55,10 +61,11 @@ export default async function DashboardPage() {
     }
 
     if (userRole === "owner" || userRole === "manager") {
-      // Company-wide stats for Owner/Manager
+      // Company-wide stats scoped strictly to the user's Organization (orgId)
       const result = await db
         .select({ status: clients.status, count: sql<number>`count(*)::int` })
         .from(clients)
+        .where(eq(clients.orgId, orgId))
         .groupBy(clients.status);
 
       result.forEach((row) => {
@@ -71,32 +78,34 @@ export default async function DashboardPage() {
         if (row.status === 'Negotiation') inProgress += row.count;
       });
 
-      // Live Financial Revenue & Pending Payments Sum
+      // Live Financial Revenue & Pending Payments Sum scoped to orgId
       const invoiceSums = await db
         .select({
           totalRev: sql<number>`COALESCE(SUM(total), 0)::int`,
           pendingPay: sql<number>`COALESCE(SUM(amount_due), 0)::int`,
         })
-        .from(invoices);
+        .from(invoices)
+        .where(eq(invoices.orgId, orgId));
 
       totalRevenue = invoiceSums[0]?.totalRev || 0;
       pendingPayments = invoiceSums[0]?.pendingPay || 0;
 
-      // Active Projects Count
+      // Active Projects Count scoped to orgId
       const activeProjects = await db
         .select({ count: sql<number>`count(*)::int` })
         .from(projects)
-        .where(ne(projects.status, 'Completed'));
+        .where(and(eq(projects.orgId, orgId), ne(projects.status, 'Completed')));
       activeProjectsCount = activeProjects[0]?.count || 0;
 
-      // Pending Tasks Count
+      // Pending Tasks Count scoped to orgId
       const pendingTasks = await db
         .select({ count: sql<number>`count(*)::int` })
         .from(projectTasks)
-        .where(ne(projectTasks.status, 'Done'));
+        .innerJoin(projects, eq(projectTasks.projectId, projects.id))
+        .where(and(eq(projects.orgId, orgId), ne(projectTasks.status, 'Done')));
       pendingTasksCount = pendingTasks[0]?.count || 0;
 
-      // Fetch live team call logs & activities for Founder / Management
+      // Fetch live team call logs & activities scoped to orgId
       recentActivities = await db
         .select({
           id: leadActivities.id,
@@ -109,6 +118,7 @@ export default async function DashboardPage() {
         .from(leadActivities)
         .leftJoin(clients, eq(leadActivities.clientId, clients.id))
         .leftJoin(users, eq(leadActivities.userId, users.id))
+        .where(eq(clients.orgId, orgId))
         .orderBy(desc(leadActivities.createdAt))
         .limit(10);
     } else {

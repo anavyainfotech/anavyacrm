@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, FolderKanban, Receipt, Ticket, Settings, Briefcase } from "lucide-react";
+import { LayoutDashboard, Users, FolderKanban, Receipt, Ticket, Settings, Briefcase, SlidersHorizontal } from "lucide-react";
 
 export const dashboardNavigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
