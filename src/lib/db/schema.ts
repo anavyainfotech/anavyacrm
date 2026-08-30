@@ -67,6 +67,7 @@ export const clients = pgTable("clients", {
   // AI Score (0-100)
   aiScore: integer("ai_score").default(0),
   // Extra & Custom Fields Data (JSON storing dynamic custom fields per industry)
+  gmbLink: text("gmb_link"),
   customFieldsData: text("custom_fields_data").default("{}"),
   notes: text("notes"),
   orgId: integer("org_id").notNull().references(() => organizations.id, { onDelete: 'cascade' }),

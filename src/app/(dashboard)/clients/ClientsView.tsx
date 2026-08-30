@@ -128,6 +128,7 @@ export default function ClientsView({
             budget: row["Budget"] || row["budget"] ? parseInt(String(row["Budget"] || row["budget"]), 10) : null,
             priority: row["Priority"] || row["priority"] || "Medium",
             source: row["Source"] || row["source"] || "Excel Import",
+            gmbLink: row["GMB Link"] || row["gmbLink"] || row["Maps Link"] || row["Google Maps Link"] || row["GMB"] || "",
           }))
           .filter((r: any) => Boolean(r.name));
 
@@ -141,9 +142,9 @@ export default function ClientsView({
 
   const downloadSampleExcel = () => {
     const sampleData = [
-      { Name: "Rahul Sharma", Phone: "+91 9876543210", Email: "rahul@example.com", Company: "Anavya Infotech", Requirement: "E-Commerce Website", Budget: 50000 },
-      { Name: "Amit Kumar", Phone: "+91 8765432109", Email: "amit@hospital.com", Company: "City Hospital Inc", Requirement: "CRM Customization", Budget: 120000 },
-      { Name: "Priya Singh", Phone: "+91 7654321098", Email: "priya@retail.com", Company: "Retail Stores Ltd", Requirement: "POS Mobile App", Budget: 75000 },
+      { Name: "Rahul Sharma", Phone: "+91 9876543210", Email: "rahul@example.com", Company: "Anavya Infotech", Requirement: "E-Commerce Website", Budget: 50000, "GMB Link": "https://maps.google.com/?cid=12345" },
+      { Name: "Amit Kumar", Phone: "+91 8765432109", Email: "amit@hospital.com", Company: "City Hospital Inc", Requirement: "CRM Customization", Budget: 120000, "GMB Link": "https://maps.google.com/?cid=67890" },
+      { Name: "Priya Singh", Phone: "+91 7654321098", Email: "priya@retail.com", Company: "Retail Stores Ltd", Requirement: "POS Mobile App", Budget: 75000, "GMB Link": "" },
     ];
     const ws = XLSX.utils.json_to_sheet(sampleData);
     const wb = XLSX.utils.book_new();
@@ -577,11 +578,12 @@ export default function ClientsView({
                   <label className="block text-xs font-semibold text-gray-600 mb-1">Lead Source</label>
                   <select name="source" className="block w-full rounded-sm border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white">
                     <option value="">Select Source</option>
-                    <option>WhatsApp</option>
-                    <option>Email</option>
-                    <option>Website</option>
-                    <option>Referral</option>
-                    <option>Cold Call</option>
+                    <option value="Google My Business">Google My Business (GMB)</option>
+                    <option value="Cold Call">Cold Call</option>
+                    <option value="WhatsApp">WhatsApp</option>
+                    <option value="Email">Email</option>
+                    <option value="Website">Website</option>
+                    <option value="Referral">Referral</option>
                   </select>
                 </div>
                 <div>
@@ -614,6 +616,16 @@ export default function ClientsView({
                     ))}
                   </select>
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">📍 Google My Business (GMB) / Maps Link</label>
+                <input
+                  type="url"
+                  name="gmbLink"
+                  className="block w-full rounded-sm border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-xs"
+                  placeholder="https://maps.app.goo.gl/xxx or https://google.com/maps/place/..."
+                />
               </div>
 
               {/* Dynamic Industry Custom Fields Section (Hidden for now) */}

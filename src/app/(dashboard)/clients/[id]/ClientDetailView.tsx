@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { format } from "date-fns";
 import {
   Building2, Mail, Phone, IndianRupee, Brain,
-  ArrowLeft, Send, CheckCircle2, AlertCircle, Clock, FileText, FileSignature, PhoneCall, MessageSquare, ExternalLink, CreditCard, Pencil
+  ArrowLeft, Send, CheckCircle2, AlertCircle, Clock, FileText, FileSignature, PhoneCall, MessageSquare, ExternalLink, CreditCard, Pencil, MapPin
 } from "lucide-react";
 import Link from "next/link";
 import { addLeadActivity, assignLead, updateClientStatus, getClientAgreements, updateClientDetailsAction } from "../actions";
@@ -225,6 +225,17 @@ export default function ClientDetailView({ client, activities, users, quotations
               </>
             )}
 
+            {(client.gmbLink || clientData.gmbLink) && (
+              <a
+                href={client.gmbLink || clientData.gmbLink}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white font-bold px-2.5 py-1 rounded-sm text-[11px] transition-colors shadow-2xs"
+              >
+                <MapPin className="w-3 h-3 text-white" /> Open GMB Listing
+              </a>
+            )}
+
             <button
               onClick={() => {
                 navigator.clipboard.writeText(`${window.location.origin}/clients/${client.id}`);
@@ -365,6 +376,20 @@ export default function ClientDetailView({ client, activities, users, quotations
                 <div className="flex items-center gap-2 text-gray-600">
                   <span className="text-gray-400 font-medium">Source:</span>
                   <span className="font-semibold text-gray-700">{client.source}</span>
+                </div>
+              )}
+              {(clientData.gmbLink || client.gmbLink) && (
+                <div className="flex items-center gap-2 text-gray-600">
+                  <MapPin className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                  <a
+                    href={clientData.gmbLink || client.gmbLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-bold text-red-600 hover:underline truncate text-xs"
+                    title={clientData.gmbLink || client.gmbLink}
+                  >
+                    Google Maps / GMB Link ↗
+                  </a>
                 </div>
               )}
             </div>
@@ -600,6 +625,17 @@ export default function ClientDetailView({ client, activities, users, quotations
                     ))}
                   </select>
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">📍 Google My Business (GMB) / Maps Link</label>
+                <input
+                  type="url"
+                  name="gmbLink"
+                  defaultValue={clientData.gmbLink || ""}
+                  placeholder="https://maps.app.goo.gl/xxx or https://google.com/maps/place/..."
+                  className="block w-full rounded-sm border border-gray-200 px-3 py-2 text-xs focus:border-blue-500 focus:outline-none font-mono"
+                />
               </div>
 
               <div>

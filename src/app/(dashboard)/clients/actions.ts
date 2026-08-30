@@ -71,6 +71,7 @@ export async function addClient(formData: FormData) {
     const budget = budgetRaw ? parseInt(budgetRaw as string, 10) : null;
     const priority = formData.get("priority") as string || "Medium";
     const status = formData.get("status") as string || "New Lead";
+    const gmbLink = (formData.get("gmbLink") as string || "").trim() || null;
     const notes = formData.get("notes") as string || null;
     const customFieldsData = formData.get("customFieldsData") as string || "{}";
     const assignedToRaw = formData.get("assignedTo");
@@ -91,7 +92,7 @@ export async function addClient(formData: FormData) {
     const [insertedClient] = await db.insert(clients).values({
       name, email, phone, whatsapp, company, industry,
       source, requirement, budget, priority, status,
-      aiScore, customFieldsData, notes, orgId, assignedTo,
+      gmbLink, aiScore, customFieldsData, notes, orgId, assignedTo,
     }).returning();
 
     // Auto-send Welcome Email if Client Email is provided
@@ -223,6 +224,7 @@ export async function updateClientDetailsAction(clientId: number, formData: Form
     const budget = budgetRaw ? parseInt(budgetRaw as string, 10) : null;
     const priority = (formData.get("priority") as string || "").trim() || "Medium";
     const status = (formData.get("status") as string || "").trim() || "New Lead";
+    const gmbLink = (formData.get("gmbLink") as string || "").trim() || null;
     const notes = (formData.get("notes") as string || "").trim() || null;
     const assignedToRaw = formData.get("assignedTo");
     const assignedTo = assignedToRaw ? parseInt(assignedToRaw as string, 10) : null;
@@ -232,7 +234,7 @@ export async function updateClientDetailsAction(clientId: number, formData: Form
     await db.update(clients).set({
       name, email, phone, whatsapp, company, industry,
       source, requirement, budget, priority, status,
-      aiScore, notes, assignedTo, updatedAt: new Date(),
+      gmbLink, aiScore, notes, assignedTo, updatedAt: new Date(),
     }).where(eq(clients.id, clientId));
 
     revalidatePath(`/clients/${clientId}`);
@@ -323,6 +325,7 @@ export async function bulkImportClientsFromObjectsAction(leadsList: Array<{
   budget?: number | null;
   priority?: string | null;
   source?: string | null;
+  gmbLink?: string | null;
 }>) {
   try {
     const session = await auth();
@@ -347,6 +350,7 @@ export async function bulkImportClientsFromObjectsAction(leadsList: Array<{
       const budget = typeof lead.budget === "number" ? lead.budget : (lead.budget ? parseInt(String(lead.budget), 10) : null);
       const priority = lead.priority ? String(lead.priority).trim() : "Medium";
       const source = lead.source ? String(lead.source).trim() : "Excel Import";
+      const gmbLink = lead.gmbLink ? String(lead.gmbLink).trim() : null;
 
       // Auto round-robin assign
       const assignedTo = await getNextRoundRobinAssignee(orgId);
@@ -370,6 +374,7 @@ export async function bulkImportClientsFromObjectsAction(leadsList: Array<{
         budget,
         priority,
         source,
+        gmbLink,
         status: "New Lead",
         aiScore,
         orgId,
