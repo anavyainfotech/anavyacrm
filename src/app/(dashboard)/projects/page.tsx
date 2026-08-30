@@ -9,10 +9,21 @@ import { getProjectsAction } from "@/features/projects/actions";
 import { getTeamMembersAction } from "@/features/team/actions";
 import ProjectsView from "./ProjectsView";
 
+import { hasPermission } from "@/lib/permissions";
+
 export default async function ProjectsPage() {
   const session = await auth();
   const user = session?.user as any;
   const currentUserRole = user?.role || "owner";
+
+  if (!hasPermission(user?.role, user?.permissions, "canViewProjects")) {
+    return (
+      <div className="py-12 text-center bg-white rounded-sm border border-gray-200 p-8 my-6">
+        <h2 className="text-lg font-bold text-gray-900">Access Denied</h2>
+        <p className="text-sm text-gray-500 mt-1">You do not have permission to view projects or tasks.</p>
+      </div>
+    );
+  }
 
   let projectsList: any[] = [];
   let tasksList: any[] = [];

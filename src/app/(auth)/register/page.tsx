@@ -3,20 +3,24 @@
 import Link from "next/link";
 import { siteConfig } from "@/config/site";
 import { registerAction } from "@/features/auth/actions";
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 
 export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     const formData = new FormData(e.currentTarget);
-    const result = await registerAction(formData);
-
-    if (result?.error) {
-      setError(result.error);
-    }
+    startTransition(async () => {
+      const result = await registerAction(formData);
+      if (result?.error) {
+        setError(result.error);
+      }
+    });
   };
 
   return (
@@ -48,7 +52,8 @@ export default function RegisterPage() {
                 name="companyName"
                 type="text"
                 required
-                className="block w-full rounded-sm border border-gray-300 py-2 px-3 text-gray-900 placeholder:text-gray-400 focus:border-blue-600 focus:outline-none sm:text-sm font-medium"
+                disabled={isPending}
+                className="block w-full rounded-sm border border-gray-300 py-2 px-3 text-gray-900 placeholder:text-gray-400 focus:border-blue-600 focus:outline-none sm:text-sm font-medium disabled:bg-gray-50"
               />
             </div>
           </div>
@@ -63,7 +68,8 @@ export default function RegisterPage() {
                 name="name"
                 type="text"
                 required
-                className="block w-full rounded-sm border border-gray-300 py-2 px-3 text-gray-900 placeholder:text-gray-400 focus:border-blue-600 focus:outline-none sm:text-sm font-medium"
+                disabled={isPending}
+                className="block w-full rounded-sm border border-gray-300 py-2 px-3 text-gray-900 placeholder:text-gray-400 focus:border-blue-600 focus:outline-none sm:text-sm font-medium disabled:bg-gray-50"
               />
             </div>
           </div>
@@ -79,7 +85,8 @@ export default function RegisterPage() {
                 type="email"
                 autoComplete="email"
                 required
-                className="block w-full rounded-sm border border-gray-300 py-2 px-3 text-gray-900 placeholder:text-gray-400 focus:border-blue-600 focus:outline-none sm:text-sm font-medium"
+                disabled={isPending}
+                className="block w-full rounded-sm border border-gray-300 py-2 px-3 text-gray-900 placeholder:text-gray-400 focus:border-blue-600 focus:outline-none sm:text-sm font-medium disabled:bg-gray-50"
               />
             </div>
           </div>
@@ -88,24 +95,45 @@ export default function RegisterPage() {
             <label htmlFor="password" className="block text-sm font-semibold leading-6 text-gray-800">
               Password
             </label>
-            <div className="mt-1">
+            <div className="mt-1 relative">
               <input
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
                 required
-                className="block w-full rounded-sm border border-gray-300 py-2 px-3 text-gray-900 placeholder:text-gray-400 focus:border-blue-600 focus:outline-none sm:text-sm font-medium"
+                disabled={isPending}
+                className="block w-full rounded-sm border border-gray-300 py-2 pl-3 pr-10 text-gray-900 placeholder:text-gray-400 focus:border-blue-600 focus:outline-none sm:text-sm font-medium disabled:bg-gray-50"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer"
+                title={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
+              </button>
             </div>
           </div>
 
           <div className="pt-2">
             <button
               type="submit"
-              className="flex w-full justify-center rounded-sm bg-blue-600 px-3 py-2 text-sm font-bold text-white shadow-xs hover:bg-blue-700 transition-colors cursor-pointer"
+              disabled={isPending}
+              className="flex w-full items-center justify-center gap-2 rounded-sm bg-blue-600 px-3 py-2 text-sm font-bold text-white shadow-xs hover:bg-blue-700 transition-colors disabled:opacity-60 cursor-pointer"
             >
-              Sign up
+              {isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Creating Workspace...</span>
+                </>
+              ) : (
+                "Sign up"
+              )}
             </button>
           </div>
         </form>

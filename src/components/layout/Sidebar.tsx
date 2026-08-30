@@ -32,17 +32,20 @@ export function Sidebar({ user, onItemClick }: { user?: any; onItemClick?: () =>
             const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
 
             // Strict Role & Permission Filtering for Sidebar Items
-            if (item.href === "/clients" && !parsedPerms.canViewLeads) {
+            if (item.href === "/clients" && !hasPermission(role, permissions, "canViewLeads")) {
               return null;
             }
-            if (item.href === "/projects" && role !== "owner" && role !== "manager" && !parsedPerms.canManageTeam) {
-              return null; // Hide projects for BD Interns/Executives without project access
+            if (item.href === "/projects" && !hasPermission(role, permissions, "canViewProjects")) {
+              return null;
             }
-            if (item.href === "/invoices" && !parsedPerms.canCreateQuotations && !parsedPerms.canCreateAgreements && role !== "owner" && role !== "manager") {
-              return null; // Hide financial invoices for interns/executives
+            if (item.href === "/invoices" && !hasPermission(role, permissions, "canManageFinance") && !hasPermission(role, permissions, "canCreateQuotations")) {
+              return null;
             }
-            if (item.href === "/team" && !parsedPerms.canManageTeam) {
-              return null; // Hide team management
+            if (item.href === "/support" && !hasPermission(role, permissions, "canViewSupport")) {
+              return null;
+            }
+            if (item.href === "/team" && !hasPermission(role, permissions, "canManageTeam")) {
+              return null;
             }
 
             return (
