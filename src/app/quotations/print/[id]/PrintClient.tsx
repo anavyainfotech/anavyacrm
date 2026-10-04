@@ -14,7 +14,7 @@ export default function PrintClient(props: any) {
 
   return (
     <div className="bg-gray-100 min-h-screen py-10 print:bg-white print:py-0">
-      <div className="w-[210mm] mx-auto shadow-xl print:shadow-none print:w-[210mm] print:max-w-none bg-white">
+      <div className="w-[210mm] mx-auto print:shadow-none print:w-[210mm] print:max-w-none bg-white">
         <QuotationTemplate {...props} />
       </div>
       

@@ -9,6 +9,7 @@ interface QuotationTemplateProps {
   total: number;
   introMessage?: string;
   scopeOfWork?: string[];
+  whatYouGet?: string[];
   complimentary?: string[];
   timelineAndTerms?: { label: string; value: string }[];
   notIncluded?: string;
@@ -30,6 +31,7 @@ const QuotationTemplate = forwardRef<HTMLDivElement, QuotationTemplateProps>(
         "Phase 3: Backend API Integration, Database Setup & QA Security Testing.",
         "Phase 4: Production Deployment & 30-Day Post-Launch Maintenance Support."
       ],
+      whatYouGet = [],
       complimentary = [
         "Free SSL Security Certificate & HTTPS Configuration.",
         "Basic On-Page SEO & Google Analytics Integration.",
@@ -59,7 +61,7 @@ const QuotationTemplate = forwardRef<HTMLDivElement, QuotationTemplateProps>(
     const quoteCode = `QUO-2026-${String(qId).padStart(3, "0")}`;
 
     return (
-      <div ref={ref} className="w-full max-w-4xl bg-white p-8 md:p-12 rounded-sm border border-gray-300 shadow-xl space-y-8 font-sans print:shadow-none print:border-none print:p-0">
+      <div ref={ref} className="w-full max-w-4xl bg-white p-8 md:p-12 space-y-8 font-sans print:shadow-none print:border-none print:p-0">
         {/* Header (Matching Tax Invoice Layout) */}
         <div className="flex justify-between items-start border-b border-gray-200 pb-6">
           <div className="flex items-center gap-4">
@@ -119,6 +121,17 @@ const QuotationTemplate = forwardRef<HTMLDivElement, QuotationTemplateProps>(
               ))}
             </ul>
           </div>
+          
+          {whatYouGet && whatYouGet.length > 0 && (
+            <div className="bg-green-50/50 p-3 rounded-sm border border-green-100 space-y-1 mt-3">
+              <span className="font-bold text-green-900 block text-[11px] uppercase tracking-wide">What You Get:</span>
+              <ul className="grid grid-cols-2 gap-1 text-gray-700 list-disc list-inside">
+                {whatYouGet.map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
 
         {/* Itemized Services Pricing Table (Matching Tax Invoice Table) */}

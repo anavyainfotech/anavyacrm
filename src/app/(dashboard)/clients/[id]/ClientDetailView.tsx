@@ -247,9 +247,21 @@ export default function ClientDetailView({ client, activities, users, quotations
             </button>
           </div>
         </div>
+
+        {/* Tab Navigation */}
+        <div className="flex items-center gap-6 px-3 mt-1 border-t border-gray-100 pt-2">
+          <button onClick={() => setActiveTab('details')} className={`text-sm font-semibold pb-1.5 transition-colors ${activeTab === 'details' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}>Timeline & Details</button>
+          <button onClick={() => setActiveTab('quotations')} className={`text-sm font-semibold pb-1.5 transition-colors flex items-center gap-1.5 ${activeTab === 'quotations' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}>
+            Quotations {quotations && quotations.length > 0 && <span className="bg-blue-100 text-blue-700 py-0.5 px-1.5 rounded-full text-[10px]">{quotations.length}</span>}
+          </button>
+          <button onClick={() => setActiveTab('agreements')} className={`text-sm font-semibold pb-1.5 transition-colors flex items-center gap-1.5 ${activeTab === 'agreements' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}>
+            Agreements {agreements && agreements.length > 0 && <span className="bg-emerald-100 text-emerald-700 py-0.5 px-1.5 rounded-full text-[10px]">{agreements.length}</span>}
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 flex-1 overflow-hidden">
+      {activeTab === 'details' ? (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 flex-1 overflow-hidden">
         {/* Left Col - Lead Details */}
         <div className="lg:col-span-1 bg-white p-4 rounded-sm border border-gray-200 space-y-3 overflow-y-auto max-h-[500px]">
           <div className="flex justify-between items-center pb-2 border-b border-gray-100">
@@ -293,9 +305,14 @@ export default function ClientDetailView({ client, activities, users, quotations
                   <FileText className="w-3.5 h-3.5 text-blue-600" /> Proposal / Quote:
                 </span>
                 {latestQuotation ? (
-                  <span className="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 text-[11px]">
-                    {latestQuotation.status} (₹{latestQuotation.total?.toLocaleString('en-IN') || 0})
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 text-[11px]">
+                      {latestQuotation.status} (₹{latestQuotation.total?.toLocaleString('en-IN') || 0})
+                    </span>
+                    <a href={`/quotations/print/${latestQuotation.id}`} target="_blank" className="text-[11px] font-bold text-blue-600 hover:underline">
+                      View ↗
+                    </a>
+                  </div>
                 ) : (
                   <span className="text-gray-400 font-medium text-[11px]">Not Sent</span>
                 )}
@@ -527,7 +544,15 @@ export default function ClientDetailView({ client, activities, users, quotations
             </div>
           </div>
         </div>
-      </div>
+      ) : activeTab === 'quotations' ? (
+        <div className="flex-1 overflow-y-auto bg-gray-50 p-4 rounded-sm border border-gray-200">
+          <QuotationTab client={clientData} existingQuotations={quotations || []} />
+        </div>
+      ) : (
+        <div className="flex-1 overflow-y-auto bg-gray-50 p-4 rounded-sm border border-gray-200">
+          <AgreementTab client={clientData} existingAgreements={agreements || []} />
+        </div>
+      )}
 
       {/* EDIT CLIENT DETAILS MODAL */}
       {isEditModalOpen && (

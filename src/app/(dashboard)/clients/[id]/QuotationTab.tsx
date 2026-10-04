@@ -50,6 +50,10 @@ export default function QuotationTab({ client, existingQuotations }: { client: a
     "Discovery → Design → Execution → Delivery → Support. We understand your brand and provide premium digital solutions tailored to your needs."
   );
   
+  const [whatYouGet, setWhatYouGet] = useState(
+    "Home page\nRooms / accommodation section\nAmenities\nGallery\nAbout property\nContact + Google Maps\nWhatsApp enquiry\nBooking enquiry form\nMobile responsive design\nBasic SEO setup\nSocial media integration\nSpeed/basic security setup"
+  );
+  
   const [complimentary, setComplimentary] = useState(
     "Basic on-page SEO setup (if website is included).\n" +
     "SSL security certificate (if website is included).\n" +
@@ -78,6 +82,7 @@ export default function QuotationTab({ client, existingQuotations }: { client: a
     startTransition(async () => {
       const termsObj = {
         introMessage,
+        whatYouGet: whatYouGet.split('\n').filter(s => s.trim() !== ""),
         scopeOfWork: scopeOfWork.split('\n').filter(s => s.trim() !== ""),
         complimentary: complimentary.split('\n').filter(s => s.trim() !== ""),
         timelineAndTerms: timelineAndTerms.split('\n').filter(s => s.trim() !== "").map(line => {
@@ -249,6 +254,11 @@ export default function QuotationTab({ client, existingQuotations }: { client: a
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">Scope of Work (One item per line)</label>
               <textarea value={scopeOfWork} onChange={(e) => setScopeOfWork(e.target.value)} rows={4} className="w-full text-sm p-2 border border-gray-300 rounded-sm focus:ring-blue-500 focus:border-blue-500 text-gray-800" />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">What You Get (One item per line)</label>
+              <textarea value={whatYouGet} onChange={(e) => setWhatYouGet(e.target.value)} rows={5} className="w-full text-sm p-2 border border-gray-300 rounded-sm focus:ring-blue-500 focus:border-blue-500 text-gray-800" />
             </div>
             
             <div>

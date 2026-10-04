@@ -41,12 +41,14 @@ export default async function PrintQuotationPage({ params }: { params: Promise<{
   ];
   let notIncluded = "▸ Website Content (Images, Service Details, Logo & Business Information) will be provided by the client.\n▸ Domain name registration (client provides)\n▸ Custom/stock photography purchase\n▸ Ongoing local SEO (available separately)\n▸ New features beyond scope, quoted separately";
   let optionalSEO: string | undefined = undefined;
+  let whatYouGet: string[] = [];
 
   if (data.quotation.terms) {
     try {
       const termsObj = JSON.parse(data.quotation.terms);
       if (termsObj.introMessage) introMessage = termsObj.introMessage;
       if (termsObj.scopeOfWork) scopeOfWork = termsObj.scopeOfWork;
+      if (termsObj.whatYouGet) whatYouGet = termsObj.whatYouGet;
       if (termsObj.complimentary) complimentary = termsObj.complimentary;
       if (termsObj.timelineAndTerms) timelineAndTerms = termsObj.timelineAndTerms;
       if (termsObj.notIncluded) notIncluded = termsObj.notIncluded;
@@ -70,6 +72,7 @@ export default async function PrintQuotationPage({ params }: { params: Promise<{
       timelineAndTerms={timelineAndTerms}
       notIncluded={notIncluded}
       optionalSEO={optionalSEO}
+      whatYouGet={whatYouGet}
     />
   );
 }
